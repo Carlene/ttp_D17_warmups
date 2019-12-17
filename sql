@@ -43,9 +43,6 @@ SELECT
 from auto_username
 
 
-
-
-
 -- Step 2: Notice that there are customers with the same? Can you think of a way to 
 -- make sure that all user names are unique? Add to the query in Step 1 so any users
 -- with the same name as another username as a unique number attached to it
@@ -60,9 +57,21 @@ SELECT
 FROM 
  customers_mod)
 
+,not_distinct as(
 SELECT
-C
-
-END as username 
+ contact_name
+ ,concat(lower(left(first_name, 5)), last_name) as username 
 
 from auto_username
+
+order by username)
+
+select 
+contact_name 
+,username 
+,CASE WHEN (row_number () over (partition by username) - 1) = 0
+THEN username 
+ELSE concat(username, row_number () over (partition by username) - 1)
+END as distinct_username 
+
+from not_distinct
